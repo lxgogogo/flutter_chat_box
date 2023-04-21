@@ -1,3 +1,4 @@
+import 'package:dart_openai/openai.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -20,7 +21,7 @@ class Conversation {
 class Message {
   int? id;
   String conversationId;
-  Role role;
+  OpenAIChatMessageRole role;
   String text;
   Message(
       {this.id,
@@ -40,12 +41,6 @@ class Message {
   String toString() {
     return 'Message{id: $id, conversationId: $conversationId, role: $role, text: $text}';
   }
-}
-
-enum Role {
-  system,
-  user,
-  assistant,
 }
 
 class ConversationRepository {
@@ -156,7 +151,7 @@ class ConversationRepository {
     final List<Map<String, dynamic>> maps = await db
         .query(_tableMessageName, where: '$_columnUuid = ?', whereArgs: [uuid]);
     return List.generate(maps.length, (i) {
-      final role = Role.values[maps[i][_columnRole]];
+      final role = OpenAIChatMessageRole.values[maps[i][_columnRole]];
       final text = maps[i][_columnText];
       final uuid = maps[i][_columnUuid];
       final id = maps[i][_columnId];

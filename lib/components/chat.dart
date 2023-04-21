@@ -1,3 +1,4 @@
+import 'package:dart_openai/openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -136,7 +137,7 @@ class _ChatWindowState extends State<ChatWindow> {
       }
       final newMessage = Message(
         conversationId: conversationUuid,
-        role: Role.user,
+        role: OpenAIChatMessageRole.user,
         text: message,
       );
       context.read<MessageBloc>().add(SendMessageEvent(newMessage));
@@ -145,7 +146,7 @@ class _ChatWindowState extends State<ChatWindow> {
   }
 
   Widget _buildMessageCard(Message message) {
-    if (message.role == Role.user) {
+    if (message.role == OpenAIChatMessageRole.user) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -199,7 +200,7 @@ class _ChatWindowState extends State<ChatWindow> {
               const SizedBox(
                 width: 5,
               ),
-              Text(message.role == Role.system ? "System" : "assistant"),
+              Text(message.role == OpenAIChatMessageRole.system ? "System" : "assistant"),
             ],
           ),
           Row(

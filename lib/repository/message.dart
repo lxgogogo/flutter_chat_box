@@ -25,12 +25,17 @@ class MessageRepository {
   }
 
   void init() {
-    OpenAI.apiKey = GetIt.instance.get<UserSettingCubit>().state.key;
-    OpenAI.baseUrl = GetIt.instance.get<UserSettingCubit>().state.baseUrl;
+    OpenAI.apiKey = GetIt.instance
+        .get<UserSettingCubit>()
+        .state
+        .key;
+    OpenAI.baseUrl = GetIt.instance
+        .get<UserSettingCubit>()
+        .state
+        .baseUrl;
   }
 
-  void _getResponseFromGpt(
-      List<Message> messages,
+  void _getResponseFromGpt(List<Message> messages,
       ValueChanged<Message> onResponse,
       ValueChanged<Message> errorCallback,
       ValueChanged<Message> onSuccess) async {
@@ -48,7 +53,7 @@ class MessageRepository {
               0,
               OpenAIChatCompletionChoiceMessageModel(
                 content: message.text,
-                role: message.role.toString().split('.').last,
+                role: message.role,
               ));
         }
       }
@@ -57,14 +62,20 @@ class MessageRepository {
     var message = Message(
         conversationId: messages.first.conversationId,
         text: "",
-        role: Role.assistant); //仅仅第一个返回了角色
-    if (GetIt.instance.get<UserSettingCubit>().state.useStream) {
+        role: OpenAIChatMessageRole.assistant); //仅仅第一个返回了角色
+    if (GetIt.instance
+        .get<UserSettingCubit>()
+        .state
+        .useStream) {
       Stream<OpenAIStreamChatCompletionModel> chatStream = OpenAI.instance.chat
           .createStream(
-              model: GetIt.instance.get<UserSettingCubit>().state.gptModel,
-              messages: openAIMessages);
+          model: GetIt.instance
+              .get<UserSettingCubit>()
+              .state
+              .gptModel,
+          messages: openAIMessages);
       chatStream.listen(
-        (chatStreamEvent) {
+            (chatStreamEvent) {
           if (chatStreamEvent.choices.first.delta.content != null) {
             message.text =
                 message.text + chatStreamEvent.choices.first.delta.content!;
@@ -80,9 +91,13 @@ class MessageRepository {
         },
       );
     } else {
+      print('xxx messages: $openAIMessages');
       try {
         var response = await OpenAI.instance.chat.create(
-          model: GetIt.instance.get<UserSettingCubit>().state.gptModel,
+          model: GetIt.instance
+              .get<UserSettingCubit>()
+              .state
+              .gptModel,
           messages: openAIMessages,
         );
         message.text = response.choices.first.message.content;
